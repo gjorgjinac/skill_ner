@@ -7,14 +7,20 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 from matplotlib.pyplot import figure
+
 postprocessing_description = {
     '_True_True': 'CSC_WNCE',
     '_True_False': 'CSC',
     '_False_False': 'None',
     '_False_True': 'WNCE'
 }
-
-matplotlib.rcParams.update({'font.size': 10})
+dictionary_formatting = {
+    'esco': 'ESCO',
+    'pdl': 'PDL',
+    'employment': 'Employment',
+    'linkedin': 'LinkedIn'
+}
+matplotlib.rcParams.update({'font.size': 14})
 all_result_df = pd.DataFrame()
 single_dictionary_result_df = pd.DataFrame()
 multiple_dictionary_result_df = pd.DataFrame()
@@ -66,6 +72,7 @@ for result_name, result_df in [#('all', all_result_df),
 
     result_df=result_df[result_df['postprocessing']=='None']
     result_df=result_df.sort_values('dictionaries_included')
+    result_df['dictionary']=result_df['dictionary'].apply(lambda dictionary: '+'.join([dictionary_formatting[d] for d in dictionary.split('+')]))
     result_df.plot(y=['f1','precision','recall'], x='dictionary', kind='bar', color=['#77019b','#afd92f','#42a2c8'])
     fig, ax = plt.subplots(1, 1, sharey=True, sharex=True)
     handles, labels = ax.get_legend_handles_labels()

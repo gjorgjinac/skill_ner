@@ -14,6 +14,12 @@ postprocessing_description = {
     '_False_True': 'WNCE'
 }
 
+dictionary_formatting = {
+    'esco': 'ESCO',
+    'pdl': 'PDL',
+    'employment': 'Employment',
+    'linkedin': 'LinkedIn'
+}
 matplotlib.rcParams.update({'font.size': 16})
 all_result_df = pd.DataFrame()
 single_dictionary_result_df = pd.DataFrame()
@@ -33,7 +39,7 @@ for result_file in os.listdir('data/evaluation_results'):
         dictionary = model_name.replace('_True','').replace('_False','')
         if dictionary=='support_2':
             continue
-        results['dictionary']= dictionary
+        results['dictionary']= '+'.join([dictionary_formatting[d] for d in dictionary.split('+')])
         results['model_name'] = model_name
         results['postprocessing']=postprocessing_description[model_name.replace(dictionary,'')]
         results['false_positives'] = false_positives
@@ -60,14 +66,17 @@ print(all_result_df)
                     orientation='portrait', transparent=True)'''
 
 for result_name, result_df in [#('all', all_result_df),
-                               #('single', single_dictionary_result_df),
-                               ('multiple', multiple_dictionary_result_df)]:
+                               ('single', single_dictionary_result_df),
+                               #('multiple', multiple_dictionary_result_df)
+    ]:
     fig, ax = plt.subplots(1, result_df['dictionary'].drop_duplicates().shape[0], sharey=True, sharex=True)
     for index, dictionary in enumerate(result_df['dictionary'].drop_duplicates().values):
         dictionary_df = result_df[result_df['dictionary']==dictionary]
+
         ax[index].set_title(dictionary)
         dictionary_df.plot(y=['f1','precision','recall'], x='postprocessing', kind='bar', color=['#77019b','#afd92f','#42a2c8'], ax = ax[index])
         ax[index].get_legend().remove()
+
     handles, labels = ax[0].get_legend_handles_labels()
 
     fig.legend(handles, labels, loc='lower center')
@@ -79,16 +88,9 @@ print(single_dictionary_result_df.columns)
 single_dictionary_no_postprocessing_results = single_dictionary_result_df[single_dictionary_result_df['postprocessing']=='None']
 for index, row in single_dictionary_no_postprocessing_results.iterrows():
     for error_column in ['false_positives', 'false_negatives']:
-        joined_errors = []
-        error = ''
-        for error_piece in row[error_column]:
-            error += row[error_column]
-
-
-
         wordcloud = WordCloud(width=800, height=800,
                               background_color='white',
-                              min_font_size=10).generate(' '.join([e.replace(' ', '_') for e in joined_errors]))
+                              min_font_size=10).generate(' '.join([e.replace(' ', '_') for e in row[error_column]]))
 
         # plot the WordCloud image
         plt.figure(figsize=(8, 8), facecolor=None)
