@@ -6,19 +6,8 @@ import pandas as pd
 from utils import initialize_ner_model_with_dictionaries, concatenate_consecutive, add_noun_chunks
 
 models_to_run = {}
-dictionaries_to_run = [['linkedin'], ['esco'], ['employment'], ['pdl'],
-                       ['linkedin', 'esco'],
-                       ['linkedin', 'employment'],
-                       ['linkedin', 'pdl'],
-                       ['esco', 'employment'],
-                       ['esco', 'pdl'],
-                       ['employment', 'pdl'],
-                       ['linkedin', 'esco', 'employment'],
-                       ['linkedin', 'esco', 'pdl'],
-                       ['esco', 'employment', 'pdl'],
-                       ['linkedin', 'pdl', 'employment'],
-                       ['linkedin', 'esco', 'employment', 'pdl']]
-dictionaries_to_run=[['support_2']]
+dictionaries_to_run = [['esco']]
+
 for dictionary_names_to_run in dictionaries_to_run:
     dictionaries_locations = [os.path.join('dictionaries',f'{dictionary_name}.txt') for dictionary_name in
                               dictionary_names_to_run]
@@ -32,17 +21,17 @@ datasets = {
     'annotated': {
         'input_file_location': f'annotated_data.csv',
         'columns_to_annotate': ['text'],
-        'output_file_location': f'support_2_annotated_data.json'
+        'output_file_location': f'annotated_data.json'
     }
 }
 
 from collections import defaultdict
-use_already_generated=True
+use_already_generated=False
 for dataset_name in ['annotated']:
 
     df_to_annotate = pd.read_csv(datasets[dataset_name]["input_file_location"])
     output_data = []
-    if use_already_generated:
+    if use_already_generated and os.path.isfile(datasets[dataset_name]["output_file_location"]):
         with open(datasets[dataset_name]["output_file_location"], 'r') as out_file:
             output_data = json.load(out_file)
     print(models_to_run)

@@ -2,6 +2,7 @@
 import pandas as pd
 import re
 import spacy
+from pyvis.network import Network
 from spacy.lang.en import English
 import json
 from spacy.pipeline import EntityRuler
@@ -90,3 +91,22 @@ def initialize_ner_model_with_dictionaries(dictionary_locations):
     ruler = nlp.add_pipe("entity_ruler")
     ruler.add_patterns(patterns)
     return nlp
+
+
+def draw_graph_with_pyvis(triples_df, entity_1='term1', entity_2='term2',
+                          entity_1_color ='purple', entity_2_color='darkcyan'):
+    nt = Network("800px", "100%")
+
+    triples_df[entity_1]=triples_df[entity_1].apply(lambda x: x.lower())
+    triples_df[entity_2] = triples_df[entity_2].apply(lambda x: x.lower())
+
+    for index, row in triples_df.iterrows():
+        nt.add_node(row[entity_1], label=row[entity_1], color=entity_1_color, size=15)
+        nt.add_node(row[entity_2], label=row[entity_2], color=entity_2_color, size=15)
+        edge_label = 'skill'
+        edge_color= 'darkgrey'
+        nt.add_edge(row[entity_1],row[entity_2], title=edge_label, color=edge_color, width=row['type'])
+    nt.show_buttons(filter_=['physics','nodes','edges','selection','layout'])
+
+    # nt.enable_physics(True)
+    nt.show("nx.html")
